@@ -2,7 +2,8 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ExamLeadPortal.Models;
 
-namespace ExamLeadPortal.Controllers;
+
+namespace ExamLeadPortal.Controllers; 
 
 public class HomeController : Controller
 {
@@ -17,6 +18,7 @@ public class HomeController : Controller
     {
         return View();
     }
+
 
     public IActionResult Privacy()
     {

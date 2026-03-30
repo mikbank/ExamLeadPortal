@@ -28,3 +28,4 @@ C:\Users\mikh\OneDrive - NIRAS\Dokumenter\Akademi i IT\AfsluttendeEksamen\ExamLe
 C:\Users\mikh\OneDrive - NIRAS\Dokumenter\Akademi i IT\AfsluttendeEksamen\ExamLeadPortal\obj\Debug\net8.0\ExamLeadPortal.pdb
 C:\Users\mikh\OneDrive - NIRAS\Dokumenter\Akademi i IT\AfsluttendeEksamen\ExamLeadPortal\obj\Debug\net8.0\ExamLeadPortal.genruntimeconfig.cache
 C:\Users\mikh\OneDrive - NIRAS\Dokumenter\Akademi i IT\AfsluttendeEksamen\ExamLeadPortal\obj\Debug\net8.0\ref\ExamLeadPortal.dll
+C:\Users\mikh\OneDrive - NIRAS\Dokumenter\Akademi i IT\AfsluttendeEksamen\ExamLeadPortal\obj\Debug\net8.0\ExamLeadPortal.sourcelink.json

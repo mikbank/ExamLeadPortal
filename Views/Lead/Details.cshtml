@@ -1,0 +1,74 @@
+@model ExamLeadPortal.ViewModels.LeadDetailsViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Lead Details";
+}
+
+@if (Model.Lead == null)
+{
+    <p>Lead not found.</p>
+}
+else
+{
+    <h1 class="mb-4">@Model.Lead.LeadTitle</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Core Information</h5>
+            <p><strong>ID:</strong> @Model.Lead.Id</p>
+            <p><strong>Summary:</strong> @Model.Lead.LeadSummary</p>
+            <p><strong>Lead Value:</strong> @Model.Lead.LeadValue</p>
+            <p><strong>Affected BUs:</strong> @string.Join(", ", Model.Lead.AffectedBUs)</p>
+            <p>
+                <strong>Resource Link:</strong>
+                <a href="@Model.Lead.ResourceLink" target="_blank">@Model.Lead.ResourceLink</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Payload Details</h5>
+
+            @if (Model.Lead.LeadPayload == null || !Model.Lead.LeadPayload.Any())
+            {
+                <p>No additional payload data available.</p>
+            }
+            else
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Lead.LeadPayload)
+                        {
+                            <tr>
+                                <td>@item.Key</td>
+                                <td>
+                                    @{
+                                        if (item.Value.ValueKind == JsonValueKind.Array)
+                                        {
+                                            var values = item.Value.EnumerateArray().Select(x => x.ToString());
+                                            @string.Join(", ", values)
+                                        }
+                                        else
+                                        {
+                                            @item.Value.ToString()
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    <a asp-controller="Lead" asp-action="Index" class="btn btn-secondary">Back to Leads</a>
+}

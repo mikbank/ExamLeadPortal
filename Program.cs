@@ -1,7 +1,15 @@
+using ExamLeadPortal.Repositories;
+using ExamLeadPortal.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddScoped<ILeadRepository, MockLeadRepository>();
+builder.Services.AddScoped<ILeadQueryService, LeadQueryService>();
+builder.Services.AddScoped<ILeadCorrectionService, LeadCorrectionService>();
 
 var app = builder.Build();
 
