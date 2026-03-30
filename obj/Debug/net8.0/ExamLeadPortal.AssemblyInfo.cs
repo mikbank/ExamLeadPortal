@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ExamLeadPortal")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7d239dd3822d2500b0ba58db50fa8e73d26c6c12")]
 [assembly: System.Reflection.AssemblyProductAttribute("ExamLeadPortal")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ExamLeadPortal")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
