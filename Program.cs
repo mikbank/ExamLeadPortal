@@ -7,9 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 
-builder.Services.AddScoped<ILeadRepository, MockLeadRepository>();
+builder.Services.AddScoped<IRawLeadRepository, RawLeadRepository>();
 builder.Services.AddScoped<ILeadQueryService, LeadQueryService>();
 builder.Services.AddScoped<ILeadCorrectionService, LeadCorrectionService>();
+builder.Services.AddScoped<IAcceptedLeadRepository, CsvAcceptedLeadRepository>();
+builder.Services.AddScoped<ILeadAcceptanceService, LeadAcceptanceService>();
 
 var app = builder.Build();
 

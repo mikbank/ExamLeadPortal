@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace ExamLeadPortal.Models
 {
-    public class Lead
+    public class RawLead
     {
         public string Id { get; set; } = string.Empty;
         public string LeadTitle { get; set; } = string.Empty;

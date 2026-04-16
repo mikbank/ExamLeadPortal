@@ -5,7 +5,7 @@ namespace ExamLeadPortal.Services
 {
     public interface ILeadQueryService
     {
-        List<Lead> GetFilteredLeads(LeadFilterOptions filterOptions);
-        Lead? GetLeadById(string id);
+        List<RawLead> GetFilteredLeads(LeadFilterOptions filterOptions);
+        RawLead? GetLeadById(string id);
     }
 }

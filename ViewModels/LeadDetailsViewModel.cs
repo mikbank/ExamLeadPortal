@@ -4,7 +4,7 @@ namespace ExamLeadPortal.ViewModels
 {
     public class LeadDetailsViewModel
     {
-        public Lead? Lead { get; set; }
+        public RawLead? Lead { get; set; }
         public bool HasCorrections { get; set; }
     }
 }

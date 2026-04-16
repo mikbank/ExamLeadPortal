@@ -6,14 +6,14 @@ namespace ExamLeadPortal.Services
 {
     public class LeadQueryService : ILeadQueryService
     {
-        private readonly ILeadRepository _leadRepository;
+        private readonly IRawLeadRepository _leadRepository;
 
-        public LeadQueryService(ILeadRepository leadRepository)
+        public LeadQueryService(IRawLeadRepository leadRepository)
         {
             _leadRepository = leadRepository;
         }
 
-        public List<Lead> GetFilteredLeads(LeadFilterOptions filterOptions)
+        public List<RawLead> GetFilteredLeads(LeadFilterOptions filterOptions)
         {
             var query = _leadRepository.GetAll().AsEnumerable();
 
@@ -39,7 +39,7 @@ namespace ExamLeadPortal.Services
             return query.ToList();
         }
 
-        public Lead? GetLeadById(string id)
+        public RawLead? GetLeadById(string id)
         {
             return _leadRepository.GetById(id);
         }
