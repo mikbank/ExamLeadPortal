@@ -1,0 +1,39 @@
+@model List<ExamLeadPortal.Models.AcceptedLead>
+
+@{
+    ViewData["Title"] = "Accepted Leads";
+}
+
+<h1 class="mb-4">Accepted Leads</h1>
+
+<div style="max-height: 600px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 12px;">
+    @if (!Model.Any())
+    {
+        <p>No accepted leads found.</p>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var lead in Model)
+            {
+                <div class="list-group-item mb-2 rounded">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">@lead.LeadTitle</h5>
+                        <small>@lead.Status</small>
+                    </div>
+
+                    <p class="mb-1">@lead.LeadSummary</p>
+                    <small>
+                        <strong>Responsible BU:</strong> @lead.ResponsibleBU
+                        <br />
+                        <strong>Lead Value:</strong> @lead.LeadValue
+                        <br />
+                        <strong>Probability:</strong> @lead.Probability
+                        <br />
+                        <strong>Accepted At:</strong> @lead.AcceptedAt.ToLocalTime()
+                    </small>
+                </div>
+            }
+        </div>
+    }
+</div>

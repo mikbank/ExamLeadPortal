@@ -2,7 +2,7 @@
 @using System.Text.Json
 
 @{
-    ViewData["Title"] = "Lead Details";
+    ViewData["Title"] = "Lead Suggestion Details";
 }
 
 @if (Model.Lead == null)
@@ -12,6 +12,14 @@
 else
 {
     <h1 class="mb-4">@Model.Lead.LeadTitle</h1>
+    <p class="text-muted">AI-generated lead suggestion</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    {
+        <div class="alert alert-info">
+            @Model.Message
+        </div>
+    }
 
     <div class="card mb-4">
         <div class="card-body">
@@ -70,5 +78,35 @@ else
         </div>
     </div>
 
-    <a asp-controller="Lead" asp-action="Index" class="btn btn-secondary">Back to Leads</a>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Acceptance</h5>
+
+            @if (Model.IsAlreadyAccepted)
+            {
+                <p class="text-success mb-0">This lead suggestion has already been accepted.</p>
+            }
+            else
+            {
+                <form asp-controller="Lead" asp-action="Accept" method="post">
+                    <input type="hidden" name="rawLeadId" value="@Model.Lead.Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Responsible BU</label>
+                        <select name="responsibleBU" class="form-select" required>
+                            <option value="">Select BU</option>
+                            @foreach (var bu in Model.ValidBUs)
+                            {
+                                <option value="@bu">@bu</option>
+                            }
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Accept Lead</button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <a asp-controller="Lead" asp-action="Index" class="btn btn-secondary">Back to Lead Suggestions</a>
 }

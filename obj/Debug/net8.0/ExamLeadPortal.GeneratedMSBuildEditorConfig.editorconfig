@@ -18,12 +18,12 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = C:\Users\mikh\OneDrive - NIRAS\Dokumenter\Akademi i IT\AfsluttendeEksamen\ExamLeadPortal
 build_property._RazorSourceGeneratorDebug = 
 
-[C:/Users/mikh/OneDrive - NIRAS/Dokumenter/Akademi i IT/AfsluttendeEksamen/ExamLeadPortal/Views/Home/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+[C:/Users/mikh/OneDrive - NIRAS/Dokumenter/Akademi i IT/AfsluttendeEksamen/ExamLeadPortal/Views/AcceptedLead/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjZXB0ZWRMZWFkXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/mikh/OneDrive - NIRAS/Dokumenter/Akademi i IT/AfsluttendeEksamen/ExamLeadPortal/Views/Home/Leads.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxMZWFkcy5jc2h0bWw=
+[C:/Users/mikh/OneDrive - NIRAS/Dokumenter/Akademi i IT/AfsluttendeEksamen/ExamLeadPortal/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/mikh/OneDrive - NIRAS/Dokumenter/Akademi i IT/AfsluttendeEksamen/ExamLeadPortal/Views/Home/Privacy.cshtml]

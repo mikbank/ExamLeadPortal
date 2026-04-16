@@ -13,7 +13,7 @@ namespace ExamLeadPortal.Services
             _leadRepository = leadRepository;
         }
 
-        public List<RawLead> GetFilteredLeads(LeadFilterOptions filterOptions)
+        public List<LeadListItemViewModel> GetFilteredLeads(LeadFilterOptions filterOptions)
         {
             var query = _leadRepository.GetAll().AsEnumerable();
 
@@ -36,12 +36,26 @@ namespace ExamLeadPortal.Services
                         bu.Contains(filterOptions.BuFilter, StringComparison.OrdinalIgnoreCase)));
             }
 
-            return query.ToList();
+            return query
+                .Select(l => new LeadListItemViewModel
+                {
+                    Lead = l,
+                    IsIncomplete = IsIncomplete(l)
+                })
+                .ToList();
         }
 
         public RawLead? GetLeadById(string id)
         {
             return _leadRepository.GetById(id);
+        }
+
+        private static bool IsIncomplete(RawLead lead)
+        {
+            return string.IsNullOrWhiteSpace(lead.LeadValue)
+                || lead.AffectedBUs == null
+                || !lead.AffectedBUs.Any()
+                || string.IsNullOrWhiteSpace(lead.ResourceLink);
         }
     }
 }
