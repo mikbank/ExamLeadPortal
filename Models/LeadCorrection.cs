@@ -1,11 +1,20 @@
+using System.Text.Json;
+
 namespace ExamLeadPortal.Models
 {
     public class LeadCorrection
     {
-        public string LeadId { get; set; } = string.Empty;
-        public List<string> CorrectedAffectedBUs { get; set; } = new();
-        public string CorrectedBy { get; set; } = string.Empty;
-        public DateTime CorrectedAt { get; set; }
-        public string Reason { get; set; } = string.Empty;
+        public string RawLeadId { get; set; } = string.Empty;
+
+        public string? LeadTitle { get; set; }
+        public string? LeadSummary { get; set; }
+        public string? LeadValue { get; set; }
+        public string? ResourceLink { get; set; }
+
+        public List<string>? AffectedBUs { get; set; }
+
+        public Dictionary<string, JsonElement> CorrectedPayload { get; set; } = new();
+
+        public DateTime CorrectedAt { get; set; } = DateTime.Now;
     }
 }

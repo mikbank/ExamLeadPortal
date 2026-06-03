@@ -6,12 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
 builder.Services.AddScoped<IRawLeadRepository, RawLeadRepository>();
-builder.Services.AddScoped<ILeadQueryService, LeadQueryService>();
-builder.Services.AddScoped<ILeadCorrectionService, LeadCorrectionService>();
 builder.Services.AddScoped<IAcceptedLeadRepository, CsvAcceptedLeadRepository>();
+
+builder.Services.AddScoped<ILeadQueryService, LeadQueryService>();
 builder.Services.AddScoped<ILeadAcceptanceService, LeadAcceptanceService>();
+
+builder.Services.AddScoped<ILeadCorrectionRepository, JsonLeadCorrectionRepository>();
+builder.Services.AddScoped<ILeadCorrectionService, LeadCorrectionService>();
 
 var app = builder.Build();
 

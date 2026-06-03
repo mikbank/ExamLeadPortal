@@ -11,15 +11,32 @@
 }
 else
 {
-    <h1 class="mb-4">@Model.Lead.LeadTitle</h1>
-    <p class="text-muted">AI-generated lead suggestion</p>
-
-    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    <div class="mb-3">
+    @if (Model.IsAlreadyAccepted) //if a lead has been accepted it should not be editable, this is the first visual enforcement - see controller for validation enforcement
     {
-        <div class="alert alert-info">
-            @Model.Message
-        </div>
+        <button class="btn btn-secondary" disabled>
+            Edit Lead
+        </button>
+
+        <span class="text-muted ms-2">
+            Accepted leads cannot be edited.
+        </span>
     }
+    else
+    {
+        <a asp-controller="Lead"
+           asp-action="Edit"
+           asp-route-id="@Model.Lead.Id"
+           class="btn btn-primary">
+            Edit Lead
+        </a>
+    }
+
+    @if (Model.HasCorrections)
+    {
+        <span class="badge bg-info text-dark ms-2">Contains employee corrections</span>
+    }
+    </div>
 
     <div class="card mb-4">
         <div class="card-body">
