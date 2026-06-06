@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace ExamLeadPortal.Models
 {
-    public class RawLead
+    public class RawLead //base data structure of a raw lead - please note the values can be empty upon construction but will be populated by repo
     {
         public string Id { get; set; } = string.Empty;
         public string LeadTitle { get; set; } = string.Empty;

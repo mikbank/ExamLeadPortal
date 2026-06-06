@@ -1,9 +1,9 @@
+using ExamLeadPortal.Models;
 using ExamLeadPortal.Repositories;
 using ExamLeadPortal.Services;
 using ExamLeadPortal.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using ExamLeadPortal.Models;
 
 namespace ExamLeadPortal.Controllers
 {
@@ -12,7 +12,7 @@ namespace ExamLeadPortal.Controllers
         private readonly ILeadQueryService _leadQueryService;
         private readonly IAcceptedLeadRepository _acceptedLeadRepository;
         private readonly ILeadAcceptanceService _leadAcceptanceService;
-        private readonly ILeadCorrectionService _leadCorrectionService;
+        private readonly ILeadRevisionService _leadRevisionService;
 
         private static readonly List<string> ValidBUs =
         [
@@ -29,12 +29,12 @@ namespace ExamLeadPortal.Controllers
             ILeadQueryService leadQueryService,
             IAcceptedLeadRepository acceptedLeadRepository,
             ILeadAcceptanceService leadAcceptanceService,
-            ILeadCorrectionService leadCorrectionService)
+            ILeadRevisionService leadRevisionService)
         {
             _leadQueryService = leadQueryService;
             _acceptedLeadRepository = acceptedLeadRepository;
             _leadAcceptanceService = leadAcceptanceService;
-            _leadCorrectionService = leadCorrectionService;
+            _leadRevisionService = leadRevisionService;
         }
 
         public IActionResult Index(LeadFilterOptions filters)
@@ -48,24 +48,32 @@ namespace ExamLeadPortal.Controllers
             return View(viewModel);
         }
 
-        public IActionResult Details(string id, string? message = null)
+        public IActionResult Details( //Get details for selected lead
+            string id,
+            string? message = null)
         {
-            var rawLead = _leadQueryService.GetLeadById(id);
+            var currentLead = _leadQueryService.GetLeadById(id);
 
-            if (rawLead == null)
+            if (currentLead == null)
             {
                 return NotFound();
             }
 
-            var correction = _leadCorrectionService.GetCorrection(id);
-            var correctedLead = _leadCorrectionService.ApplyCorrection(rawLead, correction);
+            var latestRevision =
+                _leadRevisionService.GetLatestRevision(id); //always fetches latest revision of a lead upon inspecting details, mayhaps a bit muddy on the contract? could be query instead?
 
             var viewModel = new LeadDetailsViewModel
             {
-                Lead = correctedLead,
-                HasCorrections = correction != null,
+                Lead = currentLead,
+
+            
+                HasCorrections = latestRevision != null, //if latest revision is not null, then the lead has been revised at some point
+
                 ValidBUs = ValidBUs,
-                IsAlreadyAccepted = _acceptedLeadRepository.ExistsForRawLead(id),
+
+                IsAlreadyAccepted =
+                    _acceptedLeadRepository.ExistsForRawLead(id),
+
                 Message = message
             };
 
@@ -73,113 +81,206 @@ namespace ExamLeadPortal.Controllers
         }
 
         [HttpPost]
-        public IActionResult Accept(string rawLeadId, string responsibleBU)
+
+        public IActionResult Accept(
+            string rawLeadId,
+            string responsibleBU)
         {
-            var success = _leadAcceptanceService.TryAcceptLead(
-                rawLeadId,
-                responsibleBU,
-                "ExamUser",
-                out var errorMessage);
+            var success =
+                _leadAcceptanceService.TryAcceptLead(
+                    rawLeadId,
+                    responsibleBU,
+                    "ExamUser",//!!! REPLACE THIS ON WORKING OUT AUTHENTICATION
+                    out var errorMessage);
 
             if (!success)
             {
-                return RedirectToAction("Details", new { id = rawLeadId, message = errorMessage });
+                return RedirectToAction(
+                    "Details",
+                    new
+                    {
+                        id = rawLeadId,
+                        message = errorMessage
+                    });
             }
 
-            return RedirectToAction("Details", new { id = rawLeadId, message = "Lead accepted successfully." });
+            return RedirectToAction(
+                "Details",
+                new
+                {
+                    id = rawLeadId,
+                    message = "Lead accepted successfully."
+                });
         }
 
-        [HttpGet]
+        [HttpGet]//fetches edit view
         public IActionResult Edit(string id)
         {
-            var rawLead = _leadQueryService.GetLeadById(id);
+            if (_acceptedLeadRepository.ExistsForRawLead(id))
+            {
+                return RedirectToAction(
+                    "Details",
+                    new
+                    {
+                        id,
+                        message =
+                            "This lead has already been accepted " +
+                            "and can no longer be edited."
+                    });
+            }
 
-            if (rawLead == null)
+            var currentLead =
+                _leadQueryService.GetLeadById(id);
+
+            if (currentLead == null)
             {
                 return NotFound();
             }
 
-            if (_acceptedLeadRepository.ExistsForRawLead(id))
-            {
-                return RedirectToAction("Details", new
-                {
-                    id,
-                    message = "This lead has already been accepted and can no longer be edited."
-                });
-            }
+            var latestRevision =
+                _leadRevisionService.GetLatestRevision(id);
 
-            var correction = _leadCorrectionService.GetCorrection(id);
-            var correctedLead = _leadCorrectionService.ApplyCorrection(rawLead, correction);
-
-            var viewModel = new LeadCorrectionEditViewModel
+            var viewModel = new LeadRevisionEditViewModel
             {
-                RawLeadId = correctedLead.Id,
-                LeadTitle = correctedLead.LeadTitle,
-                LeadSummary = correctedLead.LeadSummary,
-                LeadValue = correctedLead.LeadValue,
-                ResourceLink = correctedLead.ResourceLink,
-                AffectedBUs = new List<string>(correctedLead.AffectedBUs),
+                RawLeadId = currentLead.Id,
+                LeadTitle = currentLead.LeadTitle,
+                LeadSummary = currentLead.LeadSummary,
+                LeadValue = currentLead.LeadValue,
+                ResourceLink = currentLead.ResourceLink,
+
+                AffectedBUs =
+                    new List<string>(
+                        currentLead.AffectedBUs),
+
                 ValidBUs = ValidBUs,
-                PayloadValues = correctedLead.LeadPayload.ToDictionary(
-                    x => x.Key,
-                    x => x.Value.ToString()
-                )
+
+                PayloadValues =
+                    currentLead.LeadPayload.ToDictionary(
+                        x => x.Key,
+                        x => JsonElementToDisplayString(x.Value)),
+
+                CurrentRevisionVersion =
+                    latestRevision?.VersionNumber
             };
 
             return View(viewModel);
         }
 
-        [HttpPost]
-        public IActionResult SaveEdits(LeadCorrectionEditViewModel model)
+        [HttpPost]//saves the edits
+        public IActionResult SaveEdits(
+            LeadRevisionEditViewModel model)
         {
+            if (_acceptedLeadRepository.ExistsForRawLead(
+                    model.RawLeadId))
+            {
+                return RedirectToAction(
+                    "Details",
+                    new
+                    {
+                        id = model.RawLeadId,
+                        message =
+                            "This lead has already been accepted " +
+                            "and can no longer be edited."
+                    });
+            }
+
             if (!ModelState.IsValid)
             {
-                model.ValidBUs = ValidBUs;
+                PopulateEditMetadata(model);
                 return View("Edit", model);
             }
 
-            var rawLead = _leadQueryService.GetLeadById(model.RawLeadId);
+            var currentLead =
+                _leadQueryService.GetLeadById(
+                    model.RawLeadId);
 
-            if (rawLead == null)
+            if (currentLead == null)
             {
                 return NotFound();
             }
 
-             if (_acceptedLeadRepository.ExistsForRawLead(model.RawLeadId))
-                {
-                    return RedirectToAction("Details", new
-                    {
-                        id = model.RawLeadId,
-                        message = "This lead has already been accepted and can no longer be edited."
-                    });}
-
-            var correctedPayload = new Dictionary<string, JsonElement>();
-
-            foreach (var item in model.PayloadValues)
+            var revisedLead = new RawLead
             {
-                correctedPayload[item.Key] = JsonSerializer.SerializeToElement(item.Value ?? string.Empty);
-            }
-
-            var correction = new LeadCorrection
-            {
-                RawLeadId = model.RawLeadId,
+                Id = model.RawLeadId,
                 LeadTitle = model.LeadTitle,
                 LeadSummary = model.LeadSummary,
                 LeadValue = model.LeadValue,
                 ResourceLink = model.ResourceLink,
-                AffectedBUs = model.AffectedBUs,
-                CorrectedPayload = correctedPayload,
-                CorrectedAt = DateTime.Now
+
+                AffectedBUs =
+                    new List<string>(
+                        model.AffectedBUs
+                        ?? new List<string>()),
+
+                LeadPayload =
+                    ConvertPayloadValues(
+                        model.PayloadValues)
             };
 
-            _leadCorrectionService.SaveCorrection(correction);
+            var revision =
+                _leadRevisionService.CreateRevision(
+                    model.RawLeadId,
+                    revisedLead,
+                    "ExamUser");
 
-            return RedirectToAction("Details", new
+            return RedirectToAction(
+                "Details",
+                new
+                {
+                    id = model.RawLeadId,
+                    message =
+                        $"Revision {revision.VersionNumber} " +
+                        "saved successfully."
+                });
+        }
+
+        private void PopulateEditMetadata(
+            LeadRevisionEditViewModel model)
+        {
+            model.ValidBUs = ValidBUs;
+
+            model.CurrentRevisionVersion =
+                _leadRevisionService
+                    .GetLatestRevision(model.RawLeadId)
+                    ?.VersionNumber;
+        }
+
+        private static Dictionary<string, JsonElement>
+            ConvertPayloadValues(
+                Dictionary<string, string>? payloadValues)
+        {
+            var convertedPayload =
+                new Dictionary<string, JsonElement>();
+
+            if (payloadValues == null)
             {
-                id = model.RawLeadId,
-                message = "Lead edits saved successfully."
-            });
+                return convertedPayload;
+            }
+
+            foreach (var item in payloadValues)
+            {
+                convertedPayload[item.Key] =
+                    JsonSerializer.SerializeToElement(
+                        item.Value ?? string.Empty);
+            }
+
+            return convertedPayload;
+        }
+
+        private static string JsonElementToDisplayString(
+            JsonElement element)
+        {
+            return element.ValueKind switch
+            {
+                JsonValueKind.String =>
+                    element.GetString()
+                    ?? string.Empty,
+
+                JsonValueKind.Null =>
+                    string.Empty,
+
+                _ => element.ToString()
+            };
         }
     }
-    
 }

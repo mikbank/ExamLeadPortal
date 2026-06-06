@@ -1,6 +1,6 @@
 namespace ExamLeadPortal.Models
 {
-    public class AcceptedLead
+    public class AcceptedLead //datastructure of an accepted lead, business logic and validation is not handled here
     {
         public string AcceptedLeadId { get; set; } = string.Empty;
         public string RawLeadId { get; set; } = string.Empty;

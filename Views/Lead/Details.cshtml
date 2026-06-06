@@ -11,31 +11,42 @@
 }
 else
 {
-    <div class="mb-3">
-    @if (Model.IsAlreadyAccepted) //if a lead has been accepted it should not be editable, this is the first visual enforcement - see controller for validation enforcement
-    {
-        <button class="btn btn-secondary" disabled>
-            Edit Lead
-        </button>
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h1>@Model.Lead.LeadTitle</h1>
+            <p class="text-muted mb-0">
+                Lead ID: @Model.Lead.Id
+            </p>
+        </div>
 
-        <span class="text-muted ms-2">
-            Accepted leads cannot be edited.
-        </span>
-    }
-    else
-    {
-        <a asp-controller="Lead"
-           asp-action="Edit"
-           asp-route-id="@Model.Lead.Id"
-           class="btn btn-primary">
-            Edit Lead
-        </a>
-    }
+        <div>
+            @if (Model.IsAlreadyAccepted)
+            {
+                <button class="btn btn-secondary" disabled>
+                    Edit Lead
+                </button>
 
-    @if (Model.HasCorrections)
-    {
-        <span class="badge bg-info text-dark ms-2">Contains employee corrections</span>
-    }
+                <span class="text-muted ms-2">
+                    Accepted leads cannot be edited.
+                </span>
+            }
+            else
+            {
+                <a asp-controller="Lead"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Lead.Id"
+                   class="btn btn-primary">
+                    Edit Lead
+                </a>
+            }
+
+            @if (Model.HasCorrections)
+            {
+                <span class="badge bg-info text-dark ms-2">
+                    Contains employee revisions
+                </span>
+            }
+        </div>
     </div>
 
     <div class="card mb-4">

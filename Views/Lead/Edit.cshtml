@@ -1,10 +1,24 @@
-@model ExamLeadPortal.ViewModels.LeadCorrectionEditViewModel
+@model ExamLeadPortal.ViewModels.LeadRevisionEditViewModel
 
 @{
     ViewData["Title"] = "Edit Lead";
 }
 
 <h1 class="mb-4">Edit Lead</h1>
+    @if (Model.CurrentRevisionVersion.HasValue) //check if a revision has already been made, 
+    {
+        <div class="alert alert-info">
+            You are editing revision @Model.CurrentRevisionVersion.Value.
+            Saving will create revision @(Model.CurrentRevisionVersion.Value + 1).
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            You are editing the original lead.
+            Saving will create a revision.
+        </div>
+    }
 
 <form asp-controller="Lead" asp-action="SaveEdits" method="post">
     <input type="hidden" asp-for="RawLeadId" />

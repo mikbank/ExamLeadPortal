@@ -1,7 +1,7 @@
 using ExamLeadPortal.Models;
 
 namespace ExamLeadPortal.Repositories
-{
+{//Interface for accepted lead repo or datasource, contract on actions available to the rest of the app - seems OKAY for SQL migration
     public interface IAcceptedLeadRepository
     {
         List<AcceptedLead> GetAll();

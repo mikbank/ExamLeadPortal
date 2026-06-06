@@ -1,7 +1,7 @@
 using ExamLeadPortal.Models;
 
 namespace ExamLeadPortal.ViewModels
-{
+{//view model for showing a lead in the details view
     public class LeadDetailsViewModel
     {
         public RawLead? Lead { get; set; }

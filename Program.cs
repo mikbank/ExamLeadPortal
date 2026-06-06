@@ -12,8 +12,9 @@ builder.Services.AddScoped<IAcceptedLeadRepository, CsvAcceptedLeadRepository>()
 builder.Services.AddScoped<ILeadQueryService, LeadQueryService>();
 builder.Services.AddScoped<ILeadAcceptanceService, LeadAcceptanceService>();
 
-builder.Services.AddScoped<ILeadCorrectionRepository, JsonLeadCorrectionRepository>();
-builder.Services.AddScoped<ILeadCorrectionService, LeadCorrectionService>();
+
+builder.Services.AddScoped<ILeadRevisionService, LeadRevisionService >();
+builder.Services.AddScoped<ILeadRevisionRepository, CsvLeadRevisionRepository>();
 
 var app = builder.Build();
 

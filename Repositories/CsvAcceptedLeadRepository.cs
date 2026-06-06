@@ -4,23 +4,24 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ExamLeadPortal.Repositories
-{
+{//this repo is a temporary exam measure, in the real world the repo would handle SQL instead. roughly simulates CRUD (without delete)in SQL
+// used to persist data in tabular form, thus emulating a database table
     public class CsvAcceptedLeadRepository : IAcceptedLeadRepository
     {
         private readonly string _csvFilePath;
         private readonly ILogger<CsvAcceptedLeadRepository> _logger;
 
-        public CsvAcceptedLeadRepository(
+        public CsvAcceptedLeadRepository(//using app settings to get csv pat
             IConfiguration configuration,
             ILogger<CsvAcceptedLeadRepository> logger)
-        {
-            _csvFilePath = configuration["AcceptedLeadSettings:FilePath"]
-                ?? throw new Exception("AcceptedLeadSettings:FilePath is not configured");
+            {
+                _csvFilePath = configuration["AcceptedLeadSettings:FilePath"]
+                    ?? throw new Exception("AcceptedLeadSettings:FilePath is not configured");
 
-            _logger = logger;
-        }
+                _logger = logger;
+            }
 
-        public List<AcceptedLead> GetAll()
+        public List<AcceptedLead> GetAll()//Loads all accepted leads from CSV
         {
             EnsureFileExists();
 
@@ -32,24 +33,22 @@ namespace ExamLeadPortal.Repositories
                 return acceptedLeads;
             }
 
-            foreach (var line in lines.Skip(1))
+            foreach (var line in lines.Skip(1))//for each line in csv constructs a accepted lead object and adds it to a list of accepted leads
             {
                 if (string.IsNullOrWhiteSpace(line))
                 {
                     continue;
                 }
-
                 try
                 {
                     var columns = ParseCsvLine(line);
-
-                    if (columns.Count < 11)
+                    if (columns.Count < 11)//yeeaaah this is stupid but not meant for examination
                     {
                         _logger.LogWarning("Skipped malformed accepted lead CSV row: {Line}", line);
                         continue;
                     }
 
-                    var acceptedLead = new AcceptedLead
+                    var acceptedLead = new AcceptedLead//constructs accepted leads for each line loaded
                     {
                         AcceptedLeadId = columns[0],
                         RawLeadId = columns[1],
@@ -67,9 +66,9 @@ namespace ExamLeadPortal.Repositories
                     acceptedLeads.Add(acceptedLead);
                 }
                 catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to parse accepted lead CSV row: {Line}", line);
-                }
+                    {
+                        _logger.LogError(ex, "Failed to parse accepted lead CSV row: {Line}", line);
+                    }
             }
 
             _logger.LogInformation("Loaded {Count} accepted leads from {FilePath}", acceptedLeads.Count, _csvFilePath);
@@ -77,17 +76,17 @@ namespace ExamLeadPortal.Repositories
             return acceptedLeads;
         }
 
-        public AcceptedLead? GetByRawLeadId(string rawLeadId)
+        public AcceptedLead? GetByRawLeadId(string rawLeadId)//fetch function to get a specific accepted lead
         {
             return GetAll().FirstOrDefault(x => x.RawLeadId == rawLeadId);
         }
 
-        public bool ExistsForRawLead(string rawLeadId)
+        public bool ExistsForRawLead(string rawLeadId)//check if raw lead exists
         {
             return GetByRawLeadId(rawLeadId) != null;
         }
 
-        public void Save(AcceptedLead acceptedLead)
+        public void Save(AcceptedLead acceptedLead)//saves an accepted lead would be a insert statement in sql 
         {
             EnsureFileExists();
 
@@ -113,7 +112,7 @@ namespace ExamLeadPortal.Repositories
                 acceptedLead.RawLeadId);
         }
 
-        private void EnsureFileExists()
+        private void EnsureFileExists()//basic tool for checking if csv is found
         {
             var directory = Path.GetDirectoryName(_csvFilePath);
 
@@ -131,7 +130,7 @@ namespace ExamLeadPortal.Repositories
             }
         }
 
-        private static string EscapeCsv(string value)
+        private static string EscapeCsv(string value)//escapement suxx
         {
             if (value.Contains('"'))
             {
@@ -146,7 +145,7 @@ namespace ExamLeadPortal.Repositories
             return value;
         }
 
-        private static List<string> ParseCsvLine(string line)
+        private static List<string> ParseCsvLine(string line) //this also really sucked- but necessary to contain json data in line, will be easier in SQL
         {
             var result = new List<string>();
             var current = string.Empty;

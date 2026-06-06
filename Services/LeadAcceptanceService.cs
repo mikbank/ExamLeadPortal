@@ -3,13 +3,13 @@ using ExamLeadPortal.Models;
 using ExamLeadPortal.Repositories;
 
 namespace ExamLeadPortal.Services
-{
+{//this service is used to accept a lead - please note contains a helper for displaying propbability value which is often returened on ai generated leads
     public class LeadAcceptanceService : ILeadAcceptanceService
     {
-        private readonly IRawLeadRepository _rawLeadRepository;
+        private readonly ILeadQueryService _leadQueryService;
         private readonly IAcceptedLeadRepository _acceptedLeadRepository;
 
-        private static readonly List<string> ValidBUs =
+        private static readonly List<string> ValidBUs = //old static list of BU's in the real world this would come from either SQL or at least the app settings
         [
             "BUILD",
             "ENERGY",
@@ -21,10 +21,10 @@ namespace ExamLeadPortal.Services
         ];
 
         public LeadAcceptanceService(
-            IRawLeadRepository rawLeadRepository,
+            ILeadQueryService leadQueryService,
             IAcceptedLeadRepository acceptedLeadRepository)
         {
-            _rawLeadRepository = rawLeadRepository;
+            _leadQueryService = leadQueryService;
             _acceptedLeadRepository = acceptedLeadRepository;
         }
 
@@ -32,9 +32,9 @@ namespace ExamLeadPortal.Services
         {
             errorMessage = string.Empty;
 
-            var rawLead = _rawLeadRepository.GetById(rawLeadId);
+            var currentLead = _leadQueryService.GetLeadById(rawLeadId);//using query service to get the current state of the lead for pushing to acceptance-state
 
-            if (rawLead == null)
+            if (currentLead == null)
             {
                 errorMessage = "Raw lead was not found.";
                 return false;
@@ -55,14 +55,14 @@ namespace ExamLeadPortal.Services
             var acceptedLead = new AcceptedLead
             {
                 AcceptedLeadId = Guid.NewGuid().ToString(),
-                RawLeadId = rawLead.Id,
-                LeadTitle = rawLead.LeadTitle,
-                LeadSummary = rawLead.LeadSummary,
+                RawLeadId = currentLead.Id,
+                LeadTitle = currentLead.LeadTitle,
+                LeadSummary = currentLead.LeadSummary,
                 ResponsibleBU = responsibleBU,
-                LeadValue = rawLead.LeadValue,
-                Probability = GetProbability(rawLead),
-                ResourceLink = rawLead.ResourceLink,
-                AcceptedBy = acceptedBy,
+                LeadValue = currentLead.LeadValue,
+                Probability = GetProbability(currentLead),
+                ResourceLink = currentLead.ResourceLink,
+                AcceptedBy = acceptedBy,//!!!!!!!!!please note currently defined statically in the Lead Controller!!!!
                 AcceptedAt = DateTime.UtcNow,
                 Status = "Accepted"
             };
@@ -72,7 +72,7 @@ namespace ExamLeadPortal.Services
             return true;
         }
 
-        private static string GetProbability(RawLead rawLead)
+        private static string GetProbability(RawLead rawLead) //Helper function to try fetching a probability element in the json, most AI lead generators use this.
         {
             if (rawLead.LeadPayload.TryGetValue("Probability", out JsonElement probabilityElement))
             {
