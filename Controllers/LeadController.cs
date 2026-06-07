@@ -14,7 +14,7 @@ namespace ExamLeadPortal.Controllers
         private readonly ILeadAcceptanceService _leadAcceptanceService;
         private readonly ILeadRevisionService _leadRevisionService;
 
-        private static readonly List<string> ValidBUs =
+        private static readonly List<string> ValidBUs = //Would not be used in production, defined here to stop scope creep!
         [
             "BUILD",
             "ENERGY",
